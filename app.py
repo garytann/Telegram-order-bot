@@ -5,6 +5,7 @@ from telebot import types
 import os
 from dotenv import load_dotenv
 import pdb
+import json
 
 load_dotenv()
 
@@ -30,7 +31,7 @@ def process_name_step(message):
         user_dict[chat_id] = user
         msg = bot.reply_to(message, """\
             In case I need to call you tonight, if you don't mind, 
-                what's your contact number?
+                What's your contact number?
             """)
         bot.register_next_step_handler(msg, process_contact_step)
 
@@ -43,13 +44,13 @@ def process_contact_step(message):
         chat_id = message.chat.id
         contact = message.text
         if not contact.isdigit():
-            msg = bot.reply_to(message, 'Contact details should contain only digits. Please try again.')
+            msg = bot.reply_to(message, 'Oi contact details should contain only digits. Please try again.')
             bot.register_next_step_handler(msg, process_contact_step)
             return
         user = user_dict[chat_id]
         user.contact = contact
         msg = bot.reply_to(message, """\
-            Who still uses email? But maybe there will be freebies who knows. 
+            Who still uses email? But maybe there might be freebies who knows. 
                 What's your email address?
             """)
         bot.register_next_step_handler(msg, process_email_step)
@@ -83,33 +84,46 @@ def process_pickup_address_step(message):
             "email": user.email,
             "address": user.address
         }
+
         if chat_id in data_dict:
             data_dict[chat_id].append(content)
         else:
             data_dict[chat_id] = content
-        pdb.set_trace()
+        # pdb.set_trace()
+        # Save data_dict into a JSON file
+        json_file_path = "data.json"
+        with open(json_file_path, "w") as json_file:
+            json.dump(data_dict, json_file, indent=4)
         bot.send_message(chat_id, "Thank you for registering. You can now start ordering.", reply_markup=menu_keyboard())
     except Exception as e:
         msg =  bot.reply_to(message, 'oooops. Please try again')
         bot.register_next_step_handler(msg, process_pickup_address_step)
 
-
-
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    pdb.set_trace()
-    bot.reply_to(message, """\
-            Welcome to ACAI
-                /register - enter your details
-                /menu - begin ordering
-            """)
+    chat_id = message.chat.id
+    # Load data from the JSON file
+    json_file_path = "data.json"
+    with open(json_file_path, "r") as json_file:
+        records = json.load(json_file)
+
+    if str(message.chat.id) in records:
+        name_value = records[str(message.chat.id)]["name"]
+        bot.send_message(chat_id, f"Hey {name_value} be thankful that I kept your details", reply_markup=menu_keyboard())
+    else:
+
+        bot.reply_to(message, """\
+                Hi! I'm AcaiBot.
+                We can't wait for you to try our ACAI!
+                But first, we need to know a few things about you.
+                    /register - enter your details
+                """)
     
 @bot.message_handler(commands=['register'])
 def register_account(message):
     msg = bot.reply_to(message, """\
-        We can't wait for you to try our ACAI!
-        But first, we need to know a few things about you.
-            You're not Karen or Ken, are you? Enter your name below.
+            You're not Karen or Ken, are you? 
+                Enter your name below.
             """)
     bot.register_next_step_handler(msg, process_name_step)
     
