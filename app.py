@@ -2,8 +2,12 @@ from config import *
 
 import telebot
 from telebot import types
+import os
+from dotenv import load_dotenv
 
-API_TOKEN = bot_token
+load_dotenv()
+
+API_TOKEN = os.getenv('bot_token')
 
 bot = telebot.TeleBot(API_TOKEN)
 
@@ -54,12 +58,12 @@ def process_email_step(message):
         bot.reply_to(message, 'oooops')
 
 
-@bot.message_handler(commands=['help'])
+@bot.message_handler(commands=['start'])
 def send_welcome(message):
-    msg = bot.reply_to(message, """\
+    bot.reply_to(message, """\
             Welcome to Inline Skating Class Registration.
                 /register - register an account
-                /start - begin ordering process
+                /menu - begin ordering
             """)
     
 @bot.message_handler(commands=['register'])
@@ -68,7 +72,7 @@ def register_account(message):
     bot.register_next_step_handler(msg, process_name_step)
     
     
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['menu'])
 def send_menu(message):
     try:
         bot.reply_to(message, "Please select an option:", reply_markup=menu_keyboard())

@@ -2,7 +2,6 @@ from telebot import types
 from telebot.callback_data import CallbackData, CallbackDataFilter
 from telebot.custom_filters import AdvancedCustomFilter
 
-bot_token = "6362946007:AAHamKb16t5Q-OTRQuyLyOoH_AXkiwaLa5M"
 
 MENU = [
     {'id': '0', 'name': 'Order',},
