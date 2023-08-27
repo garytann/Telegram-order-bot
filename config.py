@@ -11,6 +11,18 @@ MENU = [
     {'id': '4', 'name': 'Exit'}
 ]
 
+ORDER = [
+    {'id': '0', 'name': 'Option 1',},
+    {'id': '1', 'name': 'Option 2'},
+]
+
+REGISTRATION = [
+    {'id': '0', 'name': 'Register',},
+]
+
+
+register_factory = CallbackData('register_id', prefix='register')
+order_factory = CallbackData('order_id', prefix='order')
 menu_factory = CallbackData('menu_id', prefix='menu')
 
 def menu_keyboard():
@@ -26,10 +38,37 @@ def menu_keyboard():
         ]
     )
 
+def order_keyboard():
+    return types.InlineKeyboardMarkup(
+        keyboard=[
+            [
+                types.InlineKeyboardButton(
+                    text=item['name'],
+                    callback_data=order_factory.new(order_id=item["id"])
+                )
+            ]
+            for item in ORDER
+        ]
+    )
+
+def register_keyboard():
+    return types.InlineKeyboardMarkup(
+        keyboard=[
+            [
+                types.InlineKeyboardButton(
+                    text=item['name'],
+                    callback_data=register_factory.new(register_id=item["id"])
+                )
+            ]
+            for item in REGISTRATION
+        ]
+    )
+
 class ProductsCallbackFilter(AdvancedCustomFilter):
     key = 'config'
 
     def check(self, call: types.CallbackQuery, config: CallbackDataFilter):
         return config.check(query=call)
+
     
 

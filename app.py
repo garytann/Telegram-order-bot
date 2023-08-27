@@ -2,6 +2,8 @@ from config import *
 
 import telebot
 from telebot import types
+from telebot.custom_filters import AdvancedCustomFilter
+
 import os
 from dotenv import load_dotenv
 import pdb
@@ -109,23 +111,23 @@ def send_welcome(message):
 
     if str(message.chat.id) in records:
         name_value = records[str(message.chat.id)]["name"]
-        bot.send_message(chat_id, f"Hey {name_value} be thankful that I kept your details", reply_markup=menu_keyboard())
+        bot.send_message(chat_id, f"Hey {(name_value).lower()}, craving for Acai again? ", reply_markup=menu_keyboard())
     else:
-
         bot.reply_to(message, """\
                 Hi! I'm AcaiBot.
                 We can't wait for you to try our ACAI!
                 But first, we need to know a few things about you.
-                    /register - enter your details
-                """)
+                """,
+                reply_markup=register_keyboard()
+                )
     
-@bot.message_handler(commands=['register'])
-def register_account(message):
-    msg = bot.reply_to(message, """\
-            You're not Karen or Ken, are you? 
-                Enter your name below.
-            """)
-    bot.register_next_step_handler(msg, process_name_step)
+# @bot.message_handler(commands=['register'])
+# def register_account(message):
+#     msg = bot.reply_to(message, """\
+#             You're not Karen or Ken, are you? 
+#                 Enter your name below.
+#             """)
+#     bot.register_next_step_handler(msg, process_name_step)
     
     
 @bot.message_handler(commands=['menu'])
@@ -135,6 +137,41 @@ def send_menu(message):
     except Exception as e:
         bot.reply_to(message, 'oooops')
 
-bot.infinity_polling()
+# Register Callback
+@bot.callback_query_handler(func=None, config=register_factory.filter())
+def register_callback(call: types.CallbackQuery):
+    callback_data : dict = register_factory.parse(callback_data=call.data)
+    register_id = int(callback_data['register_id'])
+    register = REGISTRATION[register_id]
+
+    # Register
+    if (register['id'] == '0'):
+        msg = bot.reply_to(call.message, """\
+            You're not Karen or Ken, are you? 
+                Enter your name below.
+            """)
+        bot.register_next_step_handler(msg, process_name_step)
+    else:
+        pass
+
+# Menu Callback
+@bot.callback_query_handler(func=None, config=menu_factory.filter())
+def menu_callback(call: types.CallbackQuery):
+    callback_data : dict = menu_factory.parse(callback_data=call.data)
+    product_id = int(callback_data['menu_id'])
+    menu = MENU[product_id]
+
+    # Order
+    if (menu['id'] == '0'):
+        bot.reply_to(call.message,f"Select your order: ", reply_markup=order_keyboard())
+    else:
+        pass
+
+# Order Callback
+
+if __name__ == "__main__":
+    print('app started')
+    bot.add_custom_filter(ProductsCallbackFilter())
+    bot.infinity_polling()
 
 
