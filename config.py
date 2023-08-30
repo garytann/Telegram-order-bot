@@ -20,10 +20,39 @@ REGISTRATION = [
     {'id': '0', 'name': 'Register',},
 ]
 
+LOCATION = [
+    {'id': '0', 'name': 'Hall 8 Admin Office',},
+    {'id': '1', 'name': 'Hall 11 Drop Off Point',},
+    {'id': '2', 'name': 'North Hill Carpark',},
+    {'id': '3', 'name': 'Tamarind/Saraca Drop Off Point',},
+    {'id': '4', 'name': 'Hall 14 Drop Off Point',},
+    {'id': '5', 'name': 'Hall 12 Amphitheatre',},
+    {'id': '6', 'name': 'Hall 3 Admin Office',},
+    {'id': '7', 'name': 'Canteen 2 Walkway',},
+    {'id': '8', 'name': 'Hall 6 Drop Off Point',},
+    {'id': '9', 'name': 'Crescent Hall Drop Off Point',},
+    {'id': '10', 'name': 'Hall 5 Drop Off Point',},
+    {'id': '11', 'name': 'Hall 4 Drop Off Point',},
+]
+
 
 register_factory = CallbackData('register_id', prefix='register')
 order_factory = CallbackData('order_id', prefix='order')
 menu_factory = CallbackData('menu_id', prefix='menu')
+location_factory = CallbackData('location_id', prefix='location')
+
+def location_keyboard():
+    return types.InlineKeyboardMarkup(
+        keyboard=[
+            [
+                types.InlineKeyboardButton(
+                    text=item['name'],
+                    callback_data=location_factory.new(location_id=item["id"])
+                )
+            ]
+            for item in LOCATION
+        ]
+    )
 
 def menu_keyboard():
     return types.InlineKeyboardMarkup(
