@@ -34,10 +34,12 @@ def process_name_step(message):
         user_dict[chat_id] = user
         msg = bot.reply_to(message, """\
             In case I need to call you tonight, if you don't mind, 
-                What's your contact number?
-            """)
+            
+            What's your contact number?
+            """,
+            reply_markup=reply_markup
+            )
         bot.register_next_step_handler(msg, process_contact_step)
-
 
     except Exception as e:
         bot.reply_to(message, 'oooops')
@@ -54,7 +56,8 @@ def process_contact_step(message):
         user.contact = contact
         msg = bot.reply_to(message, """\
             Okay, last question. I need to know where to send your order.
-                What's your address?
+            
+            What's your address?
             """, reply_markup=location_keyboard())
         # bot.register_next_step_handler(msg, process_pickup_address_step)
         # bot.reply_to(message, reply_markup=location_keyboard())
@@ -77,7 +80,7 @@ def process_contact_step(message):
 
 # def process_pickup_address_step(message):
 #     try:
-#         bot.send_message(message, reply_markup=location_keyboard())
+        # bot.send_message(message, reply_markup=location_keyboard())
         # chat_id = message.chat.id
         # address = message.text
         # user = user_dict[chat_id]
@@ -117,8 +120,8 @@ def send_welcome(message):
         bot.send_message(chat_id, f"Hey {(name_value).lower()}, craving for Açaí again? ", reply_markup=menu_keyboard())
     else:
         bot.reply_to(message, """\
-                Hi! I'm AçaíBot.
-                We can't wait for you to try our Açaí!
+                Hi! I'm AçaíBot. We can't wait for you to try our Açaí!
+            
                 But first, we need to know a few things about you.
                 """,
                 reply_markup=register_keyboard()
@@ -151,8 +154,11 @@ def register_callback(call: types.CallbackQuery):
     if (register['id'] == '0'):
         msg = bot.reply_to(call.message, """\
             You're not Karen or Ken, are you? 
-                Enter your name below.
-            """)
+            
+            Enter your name below.
+            """,
+            reply_markup=reply_markup
+            )
         bot.register_next_step_handler(msg, process_name_step)
     else:
         pass

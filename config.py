@@ -2,13 +2,15 @@ from telebot import types
 from telebot.callback_data import CallbackData, CallbackDataFilter
 from telebot.custom_filters import AdvancedCustomFilter
 
+reply_markup = types.ForceReply(selective=False)
+
 
 MENU = [
     {'id': '0', 'name': 'Order',},
-    {'id': '1', 'name': 'Check Order Status'},
-    {'id': '2', 'name': 'Cancel Order'},
-    {'id': '3', 'name': 'Update Address'},
-    {'id': '4', 'name': 'Exit'}
+    # {'id': '1', 'name': 'Check Order Status'},
+    # {'id': '2', 'name': 'Cancel Order'},
+    {'id': '1', 'name': 'Settings'},
+    {'id': '2', 'name': 'Exit'}
 ]
 
 ORDER = [
