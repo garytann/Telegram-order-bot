@@ -8,7 +8,7 @@ from backend.models import Accounts
 
 router = APIRouter()
 
-@router.get("/test")
+@router.get("/accountstest")
 async def test():
     return {"test": "test"}
 
