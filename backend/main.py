@@ -3,9 +3,11 @@ import pymongo
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import sys
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware import cors
+from motor.motor_asyncio import AsyncIOMotorClient
+
 
 from backend.api import api_router
 
@@ -33,21 +35,28 @@ app.add_middleware(
 )
 
 @app.on_event("startup")
-def startup_db_client():
-    app.mongodb_client = MongoClient(URI,server_api=ServerApi('1'))
-    app.database = app.mongodb_client[DB_USER]
+async def startup_db_client():
+    # app.mongodb_client = MongoClient(URI,server_api=ServerApi('1'))
+    app.mongodb_client = AsyncIOMotorClient(URI,server_api=ServerApi('1'))
+    app.database = app.mongodb_client["AcaiDB"]
     try:
         app.mongodb_client.admin.command('ping')
         print("Pinged your deployment. You successfully connected to MongoDB!")
     except Exception as e:
         print(e)
 
+    return app.database
+
 # Create a new client and connect to the server
 # client = MongoClient(URI, server_api=ServerApi('1'))
 
 @app.on_event("shutdown")
-def shutdown_db_client():
+async def shutdown_db_client():
     app.mongodb_client.close()
+
+
+# def get_database(db: AsyncIOMotorClient = Depends(startup_db_client)):
+#     return db
 
 # db = client.AcaiDB
 

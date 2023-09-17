@@ -1,6 +1,6 @@
 import uvicorn
 
-from fastapi import APIRouter, Body, Request, Response, HTTPException, status
+from fastapi import APIRouter, Body, Request, Response, HTTPException, status, Depends
 from fastapi.encoders import jsonable_encoder
 from typing import List
 
@@ -18,8 +18,8 @@ async def test():
             response_model = Accounts)
 async def create_account(request: Request, account: Accounts = Body(...)):
     account = jsonable_encoder(account)
-    new_account = await request.app.mongodb["Accounts"].insert_one(account)
-    created_account = await request.app.mongodb["Accounts"].find_one({"_id": new_account.inserted_id})
+    new_account = await request.app.database["Accounts"].insert_one(account)
+    created_account = await request.app.database["Accounts"].find_one({"_id": new_account.inserted_id})
     # return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_account)
     return created_account
 
