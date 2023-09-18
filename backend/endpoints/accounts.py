@@ -4,7 +4,7 @@ from fastapi import APIRouter, Body, Request, Response, HTTPException, status, D
 from fastapi.encoders import jsonable_encoder
 from typing import List
 
-from backend.models import Accounts
+from backend.models.accounts import Accounts
 
 router = APIRouter()
 
@@ -22,6 +22,15 @@ async def create_account(request: Request, account: Accounts = Body(...)):
     created_account = await request.app.database["Accounts"].find_one({"_id": new_account.inserted_id})
     # return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_account)
     return created_account
+
+@router.get("/accounts",
+            response_description="List all accounts",
+            status_code=status.HTTP_200_OK,
+            response_model=List[Accounts])
+async def list_accounts(request: Request):
+    accounts = await request.app.database["Accounts"].find().to_list(100)
+    return accounts
+
 
 
 
