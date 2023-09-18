@@ -13,13 +13,11 @@ from backend.api import api_router
 
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
-API_TOKEN = os.getenv('bot_token')
-DB_USER = os.getenv('db_user')
-db_password = os.getenv('db_password')
 
-# uri = f"mongodb+srv://{db_user}:{db_password}@atlascluster.x0j1zkf.mongodb.net/?retryWrites=true&w=majority"
+# Create the URI from the environment variables
 URI = os.getenv('ATLAS_URI')
 
 app = FastAPI()
