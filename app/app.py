@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 import pdb
 import json
+import requests
 
 load_dotenv()
 
@@ -110,13 +111,42 @@ def process_contact_step(message):
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     chat_id = message.chat.id
-    # Load data from the JSON file
-    json_file_path = "../data/data.json"
-    with open(json_file_path, "r") as json_file:
-        records = json.load(json_file)
 
-    if str(message.chat.id) in records:
-        name_value = records[str(message.chat.id)]["name"]
+    # make a GET request to the API endpoint
+    try:
+        account_list_endpoint = "http://localhost:8000/accounts/accounts"
+        response = requests.get(account_list_endpoint)
+        response.raise_for_status()
+        if response.status_code == 200:
+            accounts = response.json()
+        else:
+            pass
+    except requests.RequestException as e:
+        bot.reply_to(message, "Error connecting to the API")
+        return
+    except ValueError as e:
+        bot.reply_to(message, "Error decoding response JSON")
+        return
+    # Load data from the JSON file
+    # json_file_path = "../data/data.json"
+    # with open(json_file_path, "r") as json_file:
+    #     records = json.load(json_file)
+
+    # for account in accounts:
+    #     pdb.set_trace()
+    #     if str(chat_id) == account["userid"]:
+    #         name_value = account["name"]
+    #         bot.send_message(chat_id, f"Hey {(name_value).lower()}, craving for Açaí again? ", reply_markup=menu_keyboard())
+    #     else:
+    #         bot.reply_to(message, """\
+    #         Hi! I'm AçaíBot. We can't wait for you to try our Açaí!
+        
+    #         But first, we need to know a few things about you.
+    #         """,
+    #         reply_markup=register_keyboard()
+    #         )
+    if str(chat_id) in accounts:
+        name_value = accounts[str(chat_id)]["name"]
         bot.send_message(chat_id, f"Hey {(name_value).lower()}, craving for Açaí again? ", reply_markup=menu_keyboard())
     else:
         bot.reply_to(message, """\
@@ -189,24 +219,42 @@ def location_callback(call: types.CallbackQuery):
     user.address = location['name']
 
     content = {
-        "name": user.name,
-        "contact": user.contact,
-        "address": user.address
+        "address": str(user.address),
+        "contact": str(user.contact),
+        "name": str(user.name),
+        "userid": str(chat_id)
     }
     # pdb.set_trace()
 
+
+    # double check if the user has already registered
     if chat_id in data_dict:
         data_dict[chat_id].append(content)
     else:
         data_dict[chat_id] = content
+
+    account_registeration_endpoint = "http://localhost:8000/accounts/register"
+    
+    try:
+        response = requests.post(account_registeration_endpoint, json=content)
+        response.raise_for_status()
+        if response.status_code == 201:
+            created_account = response.json()
+            bot.send_message(chat_id, "Thank you for registering. You can now start ordering.", reply_markup=menu_keyboard())
+        else:
+            pass
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending registration request: {e}")
+    except ValueError as e:
+        print(f"Error parsing response: {e}")
+    
+    
     # pdb.set_trace()
     # Save data_dict into a JSON file
-    json_file_path = "../data/data.json"
-    with open(json_file_path, "w") as json_file:
-        json.dump(data_dict, json_file, indent=4)
-    bot.send_message(chat_id, "Thank you for registering. You can now start ordering.", reply_markup=menu_keyboard())
-        
-
+    # json_file_path = "../data/data.json"
+    # with open(json_file_path, "w") as json_file:
+    #     json.dump(data_dict, json_file, indent=4)
+    
 
 # Order Callback
 
