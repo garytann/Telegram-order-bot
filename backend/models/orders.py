@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import uuid
 from typing import Optional
 from pydantic import BaseModel, Field
@@ -6,10 +6,11 @@ from pydantic import BaseModel, Field
 
 class Orders (BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
-    date: datetime = Field(...)
+    date: datetime = Field(default_factory=datetime.now)
     order: str = Field(...)
     name: str = Field(...)
     address : str = Field(...)
+    userid: str = Field(...)
 
     class Config:
         allow_population_by_field_name = True
@@ -19,6 +20,7 @@ class Orders (BaseModel):
                 "date": "07-04-2023",
                 "order": "selection01",
                 "name": "John Doe",
-                "address": "hall 11"
+                "address": "hall 11",
+                "userid": "1234567"                
             }
         }
