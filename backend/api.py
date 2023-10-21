@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.endpoints import accounts, orders, menu
+from endpoints import accounts, orders, menu
 
 api_router = APIRouter()
 

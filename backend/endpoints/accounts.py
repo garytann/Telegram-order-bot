@@ -4,7 +4,7 @@ from fastapi import APIRouter, Body, Request, Response, HTTPException, status, D
 from fastapi.encoders import jsonable_encoder
 from typing import List
 
-from backend.models.accounts import Accounts
+from models.accounts import Accounts
 
 router = APIRouter()
 

@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  backend:
+    container_name: backend
+    build: 
+      context: ./backend
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - 8000:8000
+    # networks:
+    #   - internal-network
+    #   - default
+    environment:
+      MONGO_URL: ${MONGO_URL}
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+
+  telegram-app:
+    build: 
+      context: ./app
+    container_name: telegram-app
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      HOST_IP: ${HOST_IP}
+    depends_on:
+      backend:
+        condition: service_started
+    command: python -u app.py
+    restart: unless-stopped
+
+  mongodb:
+    container_name: db
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_DATABASE=${MONGO_DB}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
+    restart: unless-stopped
+    volumes: 
+     - ./data:/data/db
+    command:
+      mongod --quiet --logpath /dev/null
+      # - type: bind
+      #   source: ./data
+      #   target: /data/db
+
+# volumes:
+#   data: 
+# networks:
+#   internal-network:
+#     name: internal-network
+#     driver: bridge

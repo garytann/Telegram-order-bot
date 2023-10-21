@@ -9,7 +9,7 @@ from fastapi.middleware import cors
 from motor.motor_asyncio import AsyncIOMotorClient
 
 
-from backend.api import api_router
+from api import api_router
 
 import os
 from dotenv import load_dotenv
@@ -18,7 +18,7 @@ load_dotenv()
 
 
 # Create the URI from the environment variables
-URI = os.getenv('ATLAS_URI')
+MONGO_URL = os.getenv('MONGO_URL')
 
 app = FastAPI()
 
@@ -35,7 +35,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_db_client():
     # app.mongodb_client = MongoClient(URI,server_api=ServerApi('1'))
-    app.mongodb_client = AsyncIOMotorClient(URI,server_api=ServerApi('1'))
+    app.mongodb_client = AsyncIOMotorClient(MONGO_URL,server_api=ServerApi('1'))
     app.database = app.mongodb_client["AcaiDB"]
     try:
         app.mongodb_client.admin.command('ping')

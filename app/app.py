@@ -13,7 +13,8 @@ from datetime import datetime
 
 load_dotenv()
 
-API_TOKEN = os.getenv('bot_token')
+API_TOKEN = os.getenv('BOT_TOKEN')
+HOST_IP = os.getenv('HOST_IP')
 
 bot = telebot.TeleBot(API_TOKEN)
 
@@ -70,10 +71,10 @@ def process_contact_step(message):
 def send_welcome(message):
     chat_id = message.chat.id
     userid_exists = False
-
-    # make a GET request to the API endpoint
+    
+    # make a GET request to the accounts API endpoint
     try:
-        account_list_endpoint = "http://localhost:8000/accounts/accounts"
+        account_list_endpoint = f"http://{HOST_IP}:8000/accounts/accounts"
         response = requests.get(account_list_endpoint)
         response.raise_for_status()
         if response.status_code == 200:
@@ -81,7 +82,7 @@ def send_welcome(message):
         else:
             pass
     except requests.RequestException as e:
-        bot.reply_to(message, "Error connecting to the API")
+        bot.reply_to(message, f"Error connecting to the API {HOST_IP}")
         return
     except ValueError as e:
         bot.reply_to(message, "Error decoding response JSON")
@@ -202,7 +203,7 @@ def location_callback(call: types.CallbackQuery):
     else:
         data_dict[chat_id] = content
 
-    account_registeration_endpoint = "http://localhost:8000/accounts/register"
+    account_registeration_endpoint = f"http://{HOST_IP}:8000/accounts/register"
     
     try:
         response = requests.post(account_registeration_endpoint, json=content)
@@ -226,7 +227,7 @@ def order_callback(call: types.CallbackQuery):
     chat_id = call.message.chat.id
     userid_exists = False
     # Get account details based on chat_id
-    account_list_endpoint = "http://localhost:8000/accounts/accounts"
+    account_list_endpoint = f"http://{HOST_IP}:8000/accounts/accounts"
     try:
         response = requests.get(account_list_endpoint)
         response.raise_for_status()
@@ -274,7 +275,7 @@ def order_callback(call: types.CallbackQuery):
             "userid": str(userid_value)
         }
 
-        order_endpoint = "http://localhost:8000/orders/createorders"
+        order_endpoint = f"http://{HOST_IP}:8000/orders/createorders"
 
         try:
             response = requests.post(order_endpoint, json=content)
@@ -293,7 +294,7 @@ def order_callback(call: types.CallbackQuery):
             print(f"Error parsing response: {e}")
          
 if __name__ == "__main__":
-    print('app started')
+    print('TELEGRAAM APP DEPLOYED')
     bot.add_custom_filter(ProductsCallbackFilter())
     bot.infinity_polling()
 
