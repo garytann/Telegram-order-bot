@@ -24,3 +24,21 @@ class Orders (BaseModel):
                 "userid": "1234567"                
             }
         }
+
+class OrdersUpdate(BaseModel):
+    date: Optional[datetime]
+    order: Optional[str]
+    name: Optional[str]
+    address: Optional[str]
+    # userid: Optional[str]
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "date": "07-04-2023",
+                "order": "selection01",
+                "name": "John Doe",
+                "address": "hall 11",
+                # "userid": "1234567"                
+            }
+        }

@@ -37,23 +37,23 @@ async def list_orders(request: Request):
     return orders
 
 # update order
-# @router.put("/updateorder/{id}",
-#             response_description="Update an order",
-#             status_code=status.HTTP_200_OK,
-#             response_model=Orders
-#             )
-# async def update_order(request: Request, id: str, order: Orders = Body(...)):
-#     order = {k: v for k, v in order.model_dump().items() if v is not None}
-#     if len(order) >= 1:
-#         update_result = await request.app.database["Order"].update_one({"_id": id}, {"$set": order})
-#         if update_result.modified_count == 1:
-#             if (
-#                 updated_order := await request.app.database["Order"].find_one({"_id": id})
-#             ) is not None:
-#                 return updated_order
+@router.put("/updateorder/{id}",
+            response_description="Update an order",
+            status_code=status.HTTP_200_OK,
+            response_model=Orders
+            )
+async def update_order(request: Request, id: str, order: Orders = Body(...)):
+    order = {k: v for k, v in order.model_dump().items() if v is not None}
+    if len(order) >= 1:
+        update_result = await request.app.database["Order"].update_one({"userid": id}, {"$set": order})
+        if update_result.modified_count == 1:
+            if (
+                updated_order := await request.app.database["Order"].find_one({"userid": id})
+            ) is not None:
+                return updated_order
 
-#     if (existing_order := await request.app.database["Order"].find_one({"_id": id})) is not None:
-#         return existing_order
+    if (existing_order := await request.app.database["Order"].find_one({"userid": id})) is not None:
+        return existing_order
 
-#     raise HTTPException(status_code=404, detail=f"Order {id} not found")
+    raise HTTPException(status_code=404, detail=f"Order {id} not found")
 

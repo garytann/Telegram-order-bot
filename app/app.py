@@ -36,10 +36,10 @@ def process_name_step(message):
         user = User(username)
         user_dict[chat_id] = user
         msg = bot.reply_to(message, """\
-            In case I need to call you tonight, if you don't mind, 
+        In case I need to call you tonight, if you don't mind, 
             
-            What's your contact number?
-            """,
+        What's your contact number?
+        """,
             reply_markup=reply_markup
             )
         bot.register_next_step_handler(msg, process_contact_step)
@@ -58,10 +58,12 @@ def process_contact_step(message):
         user = user_dict[chat_id]
         user.contact = contact
         msg = bot.reply_to(message, """\
-            Okay, last question. I need to know where to send your order.
+        Okay, last question. I need to know where to send your order.
             
-            Where do I deliver?
-            """, reply_markup=location_keyboard())
+        Where do I deliver?
+        """, 
+        reply_markup=location_keyboard())
+
         # bot.register_next_step_handler(msg, process_pickup_address_step)
         # bot.reply_to(message, reply_markup=location_keyboard())
     except Exception as e:
@@ -71,7 +73,7 @@ def process_contact_step(message):
 def send_welcome(message):
     chat_id = message.chat.id
     userid_exists = False
-    
+
     # make a GET request to the accounts API endpoint
     try:
         account_list_endpoint = f"http://{HOST_IP}:8000/accounts/accounts"
@@ -97,44 +99,12 @@ def send_welcome(message):
         bot.send_message(chat_id, "Welcome back! What would you like to order?", reply_markup=menu_keyboard())
     else:
         bot.reply_to(message, """\
-            Hi! I'm AçaíBot. We can't wait for you to try our Açaí!
+        Hi! I'm AçaíBot. We can't wait for you to try our Açaí!
             
-            But first, we need to know a few things about you.
-            """,
+        But first, we need to know a few things about you.
+        """,
             reply_markup=register_keyboard()
             )
-    # for account in accounts.keys():
-    #     if str(chat_id) in account:
-    #         name_value = account[str(chat_id)]["name"]
-    #         bot.send_message(chat_id, f"Hey {(name_value).lower()}, craving for Açaí again? ", reply_markup=menu_keyboard())
-    #     else:
-    #         bot.reply_to(message, """\
-    #             Hi! I'm AçaíBot. We can't wait for you to try our Açaí!
-            
-    #             But first, we need to know a few things about you.
-    #             """,
-    #             reply_markup=register_keyboard()
-    #             )
-
-    # if str(chat_id) in accounts:
-    #     name_value = accounts[str(chat_id)]["name"]
-    #     bot.send_message(chat_id, f"Hey {(name_value).lower()}, craving for Açaí again? ", reply_markup=menu_keyboard())
-    # else:
-    #     bot.reply_to(message, """\
-    #         Hi! I'm AçaíBot. We can't wait for you to try our Açaí!
-        
-    #         But first, we need to know a few things about you.
-    #         """,
-    #         reply_markup=register_keyboard()
-    #         )
-    
-# @bot.message_handler(commands=['register'])
-# def register_account(message):
-#     msg = bot.reply_to(message, """\
-#             You're not Karen or Ken, are you? 
-#                 Enter your name below.
-#             """)
-#     bot.register_next_step_handler(msg, process_name_step)
     
     
 @bot.message_handler(commands=['menu'])
@@ -154,10 +124,10 @@ def register_callback(call: types.CallbackQuery):
     # Register
     if (register['id'] == '0'):
         msg = bot.reply_to(call.message, """\
-            You're not Karen or Ken, are you? 
+        You're not Karen or Ken, are you? 
             
-            Enter your name below.
-            """,
+        Enter your name below.
+        """,
             reply_markup=reply_markup
             )
         bot.register_next_step_handler(msg, process_name_step)
@@ -226,6 +196,7 @@ def order_callback(call: types.CallbackQuery):
     order = ORDER[product_id]
     chat_id = call.message.chat.id
     userid_exists = False
+    
     # Get account details based on chat_id
     account_list_endpoint = f"http://{HOST_IP}:8000/accounts/accounts"
     try:
@@ -242,10 +213,6 @@ def order_callback(call: types.CallbackQuery):
         bot.reply_to(call.message, "Error decoding response JSON")
         return
     
-    # for account in accounts:
-    #     if account['userid'] == str(chat_id):
-    #         userid_exists = True
-    #         break
     account_exists = [account for account in accounts if account['userid'] == str(chat_id)]
 
     if account_exists:
@@ -255,16 +222,6 @@ def order_callback(call: types.CallbackQuery):
         contact_value = account_exists["contact"]
         address_value = account_exists["address"]
         userid_value = account_exists["userid"]
-    # if userid_exists:
-    # # if str(chat_id) in accounts:
-    #     name_value = accounts[str(chat_id)]["name"]
-    #     contact_value = accounts[str(chat_id)]["contact"]
-    #     address_value = accounts[str(chat_id)]["address"]
-    #     userid_value = accounts[str(chat_id)]["userid"]
-        # bot.send_message(chat_id, f"Hey {(name_value).lower()}, craving for Açaí again? ", reply_markup=menu_keyboard())
-    # if (order['id'] == '0'):
-
-        # selected_order = get_name_by_id(ORDER, order)
 
         # fill up the order details as a dictionary
         content = {
@@ -282,17 +239,36 @@ def order_callback(call: types.CallbackQuery):
             response.raise_for_status()
             if response.status_code == 201:
                 created_order = response.json()
-                bot.send_message(chat_id, f"Your order {order['name']} has been placed. Thank you for ordering.", reply_markup=menu_keyboard())
+
+                # CHANGE ORDER FUNCTION WIP
+                # bot.send_message(chat_id, f"Your order {order['name']} has been placed. Thank you for ordering.", 
+                #                  reply_markup=order_menu_keyboard())
+                bot.send_message(chat_id, f"Your order {order['name']} has been placed. Thank you for ordering.")
             else:
                 pass
         except requests.exceptions.RequestException as e:
-            # bot.send_message(chat_id, f"Error sending order request: {e}")
             print(f"Error sending order request: {e}")
         except ValueError as e:
-            # bot.send_message(chat_id, f"Error parsing response: {e}")
-            # print(f"Error parsing response: {e}")
             print(f"Error parsing response: {e}")
-         
+
+# Order Menu Callback
+@bot.callback_query_handler(func=None, config=order_menu_factory.filter())
+def order_menu__callback(call: types.CallbackQuery):
+    callback_data : dict = order_menu_factory.parse(callback_data=call.data)
+    product_id = int(callback_data['order_menu_id'])
+    order_menu_id = ORDER_MENU[product_id]
+    chat_id = call.message.chat.id
+
+    if (order_menu_id['id'] == '0'):
+        # handle update order
+        # user chat_id to fetch the user's order
+        # need to ask user what they want to update
+        bot.send_message(chat_id,f"Your order has been updated successfully!")
+    else:
+        # handle cancel the order
+        bot.send_message(chat_id,f"What a waste... Your order has been canceled successfully!")
+
+
 if __name__ == "__main__":
     print('TELEGRAAM APP DEPLOYED')
     bot.add_custom_filter(ProductsCallbackFilter())

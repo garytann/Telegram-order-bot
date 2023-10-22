@@ -18,6 +18,11 @@ ORDER = [
     {'id': '1', 'name': 'Option 2'},
 ]
 
+ORDER_MENU = [
+    {'id': '0', 'name': 'Change Order',},
+    {'id': '1', 'name': 'Cancel Order'},
+]
+
 REGISTRATION = [
     {'id': '0', 'name': 'Register',},
 ]
@@ -42,6 +47,7 @@ register_factory = CallbackData('register_id', prefix='register')
 order_factory = CallbackData('order_id', prefix='order')
 menu_factory = CallbackData('menu_id', prefix='menu')
 location_factory = CallbackData('location_id', prefix='location')
+order_menu_factory = CallbackData('order_menu_id', prefix='order_menu')
 
 def location_keyboard():
     return types.InlineKeyboardMarkup(
@@ -95,17 +101,24 @@ def register_keyboard():
         ]
     )
 
+def order_menu_keyboard():
+    return types.InlineKeyboardMarkup(
+        keyboard=[
+            [
+                types.InlineKeyboardButton(
+                    text=item['name'],
+                    callback_data=order_menu_factory.new(order_menu_id=item["id"])
+                )
+            ]
+            for item in ORDER_MENU
+        ]
+    )
+
 class ProductsCallbackFilter(AdvancedCustomFilter):
     key = 'config'
 
     def check(self, call: types.CallbackQuery, config: CallbackDataFilter):
         return config.check(query=call)
 
-
-# def get_name_by_id(order_list, target_id):
-#     for item in order_list:
-#         if item.get('id') == target_id:
-#             return item.get('name')
-#     return None  # Return None if the id is not found
     
 
